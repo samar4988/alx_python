@@ -1,4 +1,4 @@
-Introduction
+ Introduction
 MySQLdb is an interface to the popular MySQL database server that provides the Python database API.
 Installation
 The README file has complete installation instructions.

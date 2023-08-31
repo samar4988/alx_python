@@ -19,4 +19,4 @@ if __name__ == '__main__':
         print(j)
     # Clean up process
     cur.close()
-    db.close()
+    db.close() 
