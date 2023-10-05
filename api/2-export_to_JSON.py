@@ -59,3 +59,17 @@ def export_todo_progress_to_json(employee_data, todo_data, employee_id):
         json.dump(json_data, json_file, indent=4)
 
     print(f"Data exported to {file_name}")
+
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print("Usage: python gather_data_and_export_to_JSON.py <employee_id>")
+        sys.exit(1)
+
+    try:
+        employee_id = int(sys.argv[1])
+    except ValueError:
+        print("Employee ID must be an integer.")
+        sys.exit(1)
+
+    employee_data, todo_data = get_employee_data(employee_id)
+    export_todo_progress_to_json(employee_data, todo_data, employee

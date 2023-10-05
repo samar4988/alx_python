@@ -1,11 +1,10 @@
 #!/usr/bin/python3
 """
-Write a Python script that, using this REST API,
-for a given employee ID, returns information about
-his/her TODO list progress and exports it in CSV format.
+Using what you did in the task #0, extend your
+Python script to export data in the CSV format.
 """
 
-import pandas as pd
+import csv
 import requests
 import sys
 
@@ -31,7 +30,7 @@ def get_employee_data(employee_id):
         response = requests.get(todo_url)
         response.raise_for_status()
         todo_data = response.json()
-    except requests.exceptions.RequestException as e:        
+    except requests.exceptions.RequestException as e:
         print(f"Error fetching TODO list: {e}")
         sys.exit(1)
 
@@ -39,24 +38,27 @@ def get_employee_data(employee_id):
 
 def export_to_csv(employee_data, todo_data):
     # Extract relevant information
-    user_id = employee_data.get("id")
-    username = employee_data.get("username")
+    USER_ID = employee_data["id"]
+    employee_name = employee_data["username"]
 
-    # Create a DataFrame for the TODO list
-    todo_df = pd.DataFrame(todo_data)
-
-    # Select relevant columns and add user-specific data
-    todo_df = todo_df[["completed", "title"]]
-    todo_df["user_id"] = user_id
-    todo_df["username"] = username
-
-    # Rename columns
-    todo_df = todo_df.rename(columns={"completed": "TASK_COMPLETED_STATUS", "title": "TASK_TITLE"})
-
-    # Save to CSV
-    csv_filename = f"{user_id}.csv"
-    todo_df.to_csv(csv_filename, index=False)
-    print(f"Data exported to {csv_filename}")
+    # Create a CSV file with the employee ID as the filename
+    filename = f"{USER_ID}.csv"
+    with open(filename, mode="w", newline="") as csv_file:
+        csv_writer = csv.writer(csv_file, delimiter=' ')
+        csv_writer.writerow(["USER_ID", "USERNAME", "TASK_COMPLETED_STATUS", "TASK_TITLE"])
+        for task in todo_data:
+            csv_writer.writerow([str(USER_ID), employee_name, str(task["completed"]), task["title"]])
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
+        print("Usage: python export_to_CSV.py <employee_id>")
+        sys.exit(1)
+
+    try:
+        employee_id = int(sys.argv[1])
+    except ValueError:
+        print("Employee ID must be an integer.")
+        sys.exit(1)
+
+    employee_data, todo_data = get_employee_data(employee_id)
+    export_to_csv(employee_data, todo_data)
