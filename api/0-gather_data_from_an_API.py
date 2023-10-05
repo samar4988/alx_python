@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+  #!/usr/bin/python3
 """
 Write a Python script that, using this REST API,
 for a given employee ID, returns information about
@@ -57,3 +57,6 @@ if __name__ == "__main__":
     except ValueError:
         print("Employee ID must be an integer.")
         sys.exit(1)
+
+    employee_data, todo_data = get_employee_data(employee_id)
+    display_todo_progress(employee_data, todo_data)

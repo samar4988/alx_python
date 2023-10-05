@@ -1,6 +1,12 @@
+#!/usr/bin/python3
+"""
+Using what you did in the task #0, extend your
+Python script to export data in the JSON format.
+"""
+
+import json
 import requests
 import sys
-import json
 
 def get_employee_data(employee_id):
     # Define the base URL for the JSONPlaceholder API
@@ -24,36 +30,32 @@ def get_employee_data(employee_id):
         response = requests.get(todo_url)
         response.raise_for_status()
         todo_data = response.json()
-    except requests.exceptions.RequestException as e:
+    except requests.exceptions.RequestException as e:        
         print(f"Error fetching TODO list: {e}")
         sys.exit(1)
 
     return employee_data, todo_data
 
-def export_todo_data_to_json(employee_id, todo_data):
+def export_todo_progress_to_json(employee_data, todo_data, employee_id):
     # Extract relevant information
     employee_name = employee_data.get("name")
-    user_id = employee_data.get("id")
+    tasks = []
 
-    # Create a list of tasks in the required format
-    tasks_list = []
     for task in todo_data:
-        task_item = {
+        tasks.append({
             "task": task["title"],
             "completed": task["completed"],
-            "username": employee_name,
-        }
-        tasks_list.append(task_item)
+            "username": employee_data["username"]
+        })
 
-    # Create a dictionary with the user ID as the key and the tasks list as the value
-    user_tasks = {f"{user_id}": tasks_list}
+    # Create the JSON data
+    json_data = {
+        str(employee_id): tasks
+    }
 
     # Write the JSON data to a file
-    file_name = f"{user_id}.json"
+    file_name = f"{employee_id}.json"
     with open(file_name, "w") as json_file:
-        json.dump(user_tasks, json_file, indent=4)
+        json.dump(json_data, json_file, indent=4)
 
-if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: python gather_data_from_an_API.py <employee_id>")
-        sys.exit(1)
+    print(f"Data exported to {file_name}")

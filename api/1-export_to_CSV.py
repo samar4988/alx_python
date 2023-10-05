@@ -2,9 +2,10 @@
 """
 Write a Python script that, using this REST API,
 for a given employee ID, returns information about
-his/her TODO list progress
+his/her TODO list progress and exports it in CSV format.
 """
 
+import pandas as pd
 import requests
 import sys
 
@@ -30,30 +31,32 @@ def get_employee_data(employee_id):
         response = requests.get(todo_url)
         response.raise_for_status()
         todo_data = response.json()
-    except requests.exceptions.RequestException as e:
+    except requests.exceptions.RequestException as e:        
         print(f"Error fetching TODO list: {e}")
         sys.exit(1)
 
     return employee_data, todo_data
 
-def display_todo_progress(employee_data, todo_data):
+def export_to_csv(employee_data, todo_data):
     # Extract relevant information
-    employee_name = employee_data.get("name")
-    completed_tasks = [task for task in todo_data if task["completed"]]
-    total_tasks = len(todo_data)
+    user_id = employee_data.get("id")
+    username = employee_data.get("username")
 
-    # Display employee TODO list progress
-    print(f"Employee {employee_name} is done with tasks({len(completed_tasks)}/{total_tasks}):")
-    for task in completed_tasks:
-        print(f"\t {task['title']}")
+    # Create a DataFrame for the TODO list
+    todo_df = pd.DataFrame(todo_data)
+
+    # Select relevant columns and add user-specific data
+    todo_df = todo_df[["completed", "title"]]
+    todo_df["user_id"] = user_id
+    todo_df["username"] = username
+
+    # Rename columns
+    todo_df = todo_df.rename(columns={"completed": "TASK_COMPLETED_STATUS", "title": "TASK_TITLE"})
+
+    # Save to CSV
+    csv_filename = f"{user_id}.csv"
+    todo_df.to_csv(csv_filename, index=False)
+    print(f"Data exported to {csv_filename}")
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print("Usage: python gather_data_from_an_API.py <employee_id>")
-        sys.exit(1)
-
-    try:
-        employee_id = int(sys.argv[1])
-    except ValueError:
-        print("Employee ID must be an integer.")
-        sys.exit(1)
