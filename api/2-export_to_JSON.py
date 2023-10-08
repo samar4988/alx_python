@@ -72,4 +72,4 @@ if __name__ == "__main__":
         sys.exit(1)
 
     employee_data, todo_data = get_employee_data(employee_id)
-    export_todo_progress_to_json(employee_data, todo_data, employee
+    export_todo_progress_to_json(employee_data, todo_data, employee_id)
